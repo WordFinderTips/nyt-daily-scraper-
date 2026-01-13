@@ -1,7 +1,24 @@
 {
-    "last_updated": "2026-01-13 11:25:18",
-    "date": "2026-01-13",
-    "spelling_bee": {},
-    "connections": {},
-    "status": "Failed to fetch Bee"
+    "last_updated": "2026-01-13 11:29:32",
+    "nyt_games": {
+        "spelling_bee": {
+            "center": "M",
+            "letters": "EILNTY",
+            "pangrams": [
+                "IMMINENTLY",
+                "EMINENTLY"
+            ],
+            "date": "2026-01-13"
+        },
+        "strands": {
+            "theme": "You need to chill",
+            "spangram": "FROZENFOOD"
+        }
+    },
+    "la_times_games": {
+        "daily_crossword": "https://www.latimes.com/games/daily-crossword",
+        "mini_crossword": "https://www.latimes.com/games/mini-crossword",
+        "sudoku": "https://www.latimes.com/games/daily-sudoku"
+    },
+    "source_status": "Active"
 }
