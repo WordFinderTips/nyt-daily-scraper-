@@ -1,56 +1,50 @@
 import requests
 import json
-from bs4 import BeautifulSoup
+import re
 from datetime import datetime
 
-# Apni ScrapingBee API Key yahan dalein
+# Apni ScrapingBee API Key
 API_KEY = '0H648XHAU6JCPP1O6QGWSH4TDA2AUZGIGAQ3BJXTV2E4V7QXJP46BRD1BFQFPCIY5KMVUNNIGPISV9O7'
 
-def get_bee_answers(target_url):
+def main():
     api_url = "https://app.scrapingbee.com/api/v1/"
+    target_url = "https://word.tips/spelling-bee-answers/"
+    
     params = {
         'api_key': API_KEY,
         'url': target_url,
         'render_js': 'false' 
     }
-    try:
-        res = requests.get(api_url, params=params, timeout=30)
-        if res.status_code == 200:
-            soup = BeautifulSoup(res.text, 'html.parser')
-            words = []
-            
-            # WordTips ke Spelling Bee answers hamesha table (td) mein hote hain
-            # Hum sirf wo words uthayenge jo uppercase hain aur menu ka hissa nahi
-            for td in soup.find_all('td'):
-                txt = td.get_text().strip()
-                # Spelling Bee answers hamesha bare haroof (Caps) mein hote hain
-                if txt.isupper() and len(txt) > 3 and " " not in txt:
-                    words.append(txt)
-            
-            return list(dict.fromkeys(words)) # Duplicates khatam
-        else:
-            return [f"API Error: {res.status_code}"]
-    except Exception as e:
-        return [f"Error: {str(e)}"]
-
-def main():
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    # Sirf Spelling Bee ka test (1 Credit)
-    print("🚀 Fetching ONLY Table Data (Proof of Concept)...")
-    url = "https://word.tips/spelling-bee-answers/"
-    data = get_bee_answers(url)
+    try:
+        print("🚀 Brute Force Scraping started...")
+        res = requests.get(api_url, params=params, timeout=30)
+        html_content = res.text
+        
+        # Logic: WordTips ke answers 4 se 10 huroof ke uppercase words hote hain
+        # Hum poore HTML mein se wo words dhoondenge jo sirf CAPS mein hain
+        # Aur filter karenge taake menu items (WORDLE, SOLVER) na ayien
+        all_caps_words = re.findall(r'\b[A-Z]{4,12}\b', html_content)
+        
+        # Stop words jo menu ka hissa hote hain
+        stop_words = ["WORDLE", "SOLVER", "TIPS", "LOGIN", "GAMES", "MENU", "BLOG", "TODAY", "SEARCH", "HOME"]
+        
+        clean_words = [w for w in all_caps_words if w not in stop_words]
+        final_list = list(dict.fromkeys(clean_words)) # Duplicates khatam
 
-    final_json = {
-        "last_updated": now,
-        "date": datetime.now().strftime("%Y-%m-%d"),
-        "real_answers": data if data else "Table not found - Check Logic",
-        "status": "Success" if data else "Failed to find words"
-    }
+        master_json = {
+            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "date": "2026-01-14",
+            "extracted_words": final_list if len(final_list) > 5 else "Still no data found",
+            "status": "Final Brute Force"
+        }
+
+    except Exception as e:
+        master_json = {"error": str(e), "status": "Failed"}
 
     with open('data.json', 'w') as f:
-        json.dump(final_json, f, indent=4)
-    print("✅ Check data.json for REAL words now!")
+        json.dump(master_json, f, indent=4)
+    print("✅ data.json force updated.")
 
 if __name__ == "__main__":
     main()
