@@ -3,40 +3,58 @@ import json
 import re
 from datetime import datetime
 
-def get_wordtips_data(game_type):
-    # Word.Tips se data nikalna sabse stable hai
-    url = f"https://word.tips/nyt-{game_type}-answers/"
-    headers = {'User-Agent': 'Mozilla/5.0'}
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+}
+
+def get_nyt_game(game_name):
+    url = f"https://www.nytimes.com/puzzles/{game_name}"
     try:
-        res = requests.get(url, headers=headers, timeout=15)
-        # Hum yahan se direct answers aur clues pick kar sakte hain
-        return {"source": url, "status": "Fetch Success"}
+        response = requests.get(url, headers=headers, timeout=20)
+        # window.gameData ke andar chhupa hua JSON nikalna
+        match = re.search(r'window\.gameData\s*=\s*(\{.*?\})(?=;|</script>)', response.text, re.DOTALL)
+        if match:
+            return json.loads(match.group(1))
     except:
         return {}
+    return {}
+
+def get_la_times():
+    date_id = datetime.now().strftime("%y%m%d")
+    url = f"https://games.arkadium.com/latimes-daily-crossword/data/{date_id}.json"
+    try:
+        res = requests.get(url, headers=headers, timeout=15)
+        if res.status_code == 200:
+            return res.json()
+    except:
+        return {"status": "LA Times Fetch Error"}
+    return {}
 
 def main():
-    print("🚀 Forcing Data Update...")
-    # Date update karna zaroori hai taake pata chale script chali hai
+    print("🚀 Extracting Real Data...")
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    today = datetime.now().strftime("%Y-%m-%d")
+    
+    # 1. NYT Games (Spelling Bee, Connections, Strands)
+    bee_raw = get_nyt_game("spelling_bee")
+    conn_raw = get_nyt_game("connections")
+    strands_raw = get_nyt_game("strands")
 
+    # 2. Structure Final JSON
     master_json = {
         "last_updated": now,
-        "date": today,
-        "games": {
-            "spelling_bee": {"status": "Updated", "link": "https://word.tips/nyt-spelling-bee-answers/"},
-            "connections": {"status": "Updated", "link": "https://word.tips/nyt-connections-answers/"},
-            "strands": {"status": "Updated", "link": "https://word.tips/nyt-strands-answers/"}
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "nyt_games": {
+            "spelling_bee": bee_raw.get('today', {}),
+            "connections": conn_raw.get('categories', []),
+            "strands": strands_raw.get('today', {})
         },
-        "la_times": {
-            "daily_crossword": f"https://games.arkadium.com/latimes-daily-crossword/data/{datetime.now().strftime('%y%m%d')}.json"
-        },
-        "status": "Live Update Success"
+        "la_times": get_la_times(),
+        "status": "Success"
     }
 
     with open('data.json', 'w') as f:
         json.dump(master_json, f, indent=4)
-    print(f"✅ data.json rewritten at {now}")
+    print(f"✅ Full Data Saved at {now}")
 
 if __name__ == "__main__":
     main()
