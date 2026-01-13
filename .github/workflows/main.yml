@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Ye line Exit Code 128 ko fix karegi
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
