@@ -1,35 +1,36 @@
 import requests
 import json
-import re
+from bs4 import BeautifulSoup
 from datetime import datetime
-from bs4 import BeautifulSoup # BeautifulSoup use kar rahe hain taake data safayi se nikle
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 }
 
-def fetch_wordtips_content(url):
+def fetch_clean_answers(url):
     try:
         res = requests.get(url, headers=headers, timeout=20)
         if res.status_code == 200:
             soup = BeautifulSoup(res.text, 'html.parser')
-            # Word.Tips par answers aksar <strong> tags ya tables mein hote hain
-            # Hum saare list items aur bold text nikal rahe hain
             results = []
-            for item in soup.find_all(['li', 'strong']):
-                text = item.get_text().strip()
-                if 2 < len(text) < 100: # Sirf kaam ka text rakhne ke liye
-                    results.append(text)
-            return results[:30] # Top 30 points kafi hain
+            
+            # Word.Tips ke articles mein answers aksar <li> ya tables mein hote hain
+            # Hum sirf wo text uthayenge jo menu ka hissa nahi hai
+            content_area = soup.find('article') or soup.find('main')
+            if content_area:
+                for item in content_area.find_all(['li', 'td']):
+                    text = item.get_text().strip()
+                    # Filtering: Menu items ko nikalne ke liye
+                    if 2 < len(text) < 50 and "Solver" not in text and "Today" not in text:
+                        results.append(text)
+            
+            return list(dict.fromkeys(results))[:40] # Duplicate khatam aur top 40
     except:
-        return ["Link Error"]
+        return []
     return []
 
 def main():
-    print("🚀 Scraping all Word.Tips Daily Links...")
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    # Aapke diye hue links ka structure
+    print("🚀 Scraping Specific Answers from Word.Tips...")
     urls = {
         "nyt_crossword": "https://word.tips/todays-nyt-the-crossword-clues-answers-hints/",
         "nyt_mini": "https://word.tips/todays-nyt-mini-crossword-clues-answers/",
@@ -45,20 +46,19 @@ def main():
     }
     
     master_data = {}
-    for game_name, link in urls.items():
-        print(f"Fetching {game_name}...")
-        master_data[game_name] = fetch_wordtips_content(link)
+    for name, link in urls.items():
+        print(f"Processing {name}...")
+        master_data[name] = fetch_clean_answers(link)
 
     final_json = {
-        "last_updated": now,
+        "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "date": datetime.now().strftime("%Y-%m-%d"),
-        "puzzles_data": master_data,
-        "status": "Success"
+        "puzzles": master_data
     }
 
     with open('data.json', 'w') as f:
         json.dump(final_json, f, indent=4)
-    print(f"✅ All {len(urls)} links scraped into data.json")
+    print("✅ data.json cleaned and updated!")
 
 if __name__ == "__main__":
     main()
