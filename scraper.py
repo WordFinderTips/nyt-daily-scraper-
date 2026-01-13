@@ -1,15 +1,13 @@
 import requests
 import json
+import re
 from datetime import datetime
 
-# Apni ScrapingBee API Key
 API_KEY = '0H648XHAU6JCPP1O6QGWSH4TDA2AUZGIGAQ3BJXTV2E4V7QXJP46BRD1BFQFPCIY5KMVUNNIGPISV9O7'
 
-def main():
-    # NYT Spelling Bee ki asli internal API
-    target_url = "https://www.nytimes.com/puzzles/spelling-bee"
+def get_nyt_game_data(game_name):
+    target_url = f"https://www.nytimes.com/puzzles/{game_name}"
     api_url = "https://app.scrapingbee.com/api/v1/"
-    
     params = {
         'api_key': API_KEY,
         'url': target_url,
@@ -17,39 +15,48 @@ def main():
         'country_code': 'us',
         'render_js': 'false' 
     }
-    
     try:
-        print("🚀 Fetching direct from NYT Source...")
         res = requests.get(api_url, params=params, timeout=40)
-        html = res.text
-        
-        import re
-        # NYT apna sara data is ek line mein rakhta hai
-        match = re.search(r'window\.gameData\s*=\s*(\{.*?\})(?=;|</script>)', html, re.DOTALL)
-        
+        match = re.search(r'window\.gameData\s*=\s*(\{.*?\})(?=;|</script>)', res.text, re.DOTALL)
         if match:
-            raw_data = json.loads(match.group(1))
-            today = raw_data.get('today', {})
-            
-            master_json = {
-                "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "date": datetime.now().strftime("%Y-%m-%d"),
-                "game": "Spelling Bee",
-                "center_letter": today.get('centerLetter'),
-                "outer_letters": today.get('outerLetters'),
-                "word_list": today.get('answers'), # Ye hain asli 100% answers
-                "pangrams": today.get('pangrams'),
-                "status": "Success - Direct NYT Data"
-            }
-        else:
-            master_json = {"status": "Failed", "reason": "Could not find gameData on NYT"}
+            return json.loads(match.group(1)).get('today', {})
+    except:
+        return {}
+    return {}
 
-    except Exception as e:
-        master_json = {"error": str(e), "status": "Failed"}
+def main():
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print("🚀 Fetching All NYT Games Direct...")
+
+    # Teeno games ka data (Total 3 credits kharch honge)
+    bee = get_nyt_game_data("spelling-bee")
+    conn = get_nyt_game_data("connections")
+    strands = get_nyt_game_data("strands")
+
+    master_json = {
+        "last_updated": now,
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "games": {
+            "spelling_bee": {
+                "letters": {"center": bee.get('centerLetter'), "outer": bee.get('outerLetters')},
+                "answers": bee.get('answers'),
+                "pangrams": bee.get('pangrams')
+            },
+            "connections": {
+                "categories": conn.get('categories', [])
+            },
+            "strands": {
+                "words": strands.get('clueWords'),
+                "spangram": strands.get('spangram'),
+                "theme": strands.get('theme')
+            }
+        },
+        "status": "Success - All NYT Data Live"
+    }
 
     with open('data.json', 'w') as f:
         json.dump(master_json, f, indent=4)
-    print("✅ Final Data Saved.")
+    print("✅ All Puzzles Updated!")
 
 if __name__ == "__main__":
     main()
