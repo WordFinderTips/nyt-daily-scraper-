@@ -3,11 +3,11 @@ import json
 from bs4 import BeautifulSoup
 from datetime import datetime
 
+# Apni ScrapingBee API Key yahan dalein
 API_KEY = '0H648XHAU6JCPP1O6QGWSH4TDA2AUZGIGAQ3BJXTV2E4V7QXJP46BRD1BFQFPCIY5KMVUNNIGPISV9O7'
 
-def get_data_safe(target_url):
+def get_bee_answers(target_url):
     api_url = "https://app.scrapingbee.com/api/v1/"
-    # Sirf raw HTML mangwa rahe hain, extract rules hata diye hain 400 error se bachne ke liye
     params = {
         'api_key': API_KEY,
         'url': target_url,
@@ -17,9 +17,17 @@ def get_data_safe(target_url):
         res = requests.get(api_url, params=params, timeout=30)
         if res.status_code == 200:
             soup = BeautifulSoup(res.text, 'html.parser')
-            # WordTips ke answers 'li' tags mein hote hain
-            answers = [li.get_text().strip() for li in soup.find_all('li') if 3 < len(li.get_text()) < 30]
-            return answers[:40]
+            words = []
+            
+            # WordTips ke Spelling Bee answers hamesha table (td) mein hote hain
+            # Hum sirf wo words uthayenge jo uppercase hain aur menu ka hissa nahi
+            for td in soup.find_all('td'):
+                txt = td.get_text().strip()
+                # Spelling Bee answers hamesha bare haroof (Caps) mein hote hain
+                if txt.isupper() and len(txt) > 3 and " " not in txt:
+                    words.append(txt)
+            
+            return list(dict.fromkeys(words)) # Duplicates khatam
         else:
             return [f"API Error: {res.status_code}"]
     except Exception as e:
@@ -28,22 +36,21 @@ def get_data_safe(target_url):
 def main():
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    # Sirf 1 link par test karein taake mazeed credit zaya na hon
-    # Jab ye chal jaye toh hum baqi links add kar lenge
-    print("🚀 Fetching Spelling Bee Answers (1 Credit Test)...")
-    bee_url = "https://word.tips/spelling-bee-answers/"
-    bee_data = get_data_safe(bee_url)
+    # Sirf Spelling Bee ka test (1 Credit)
+    print("🚀 Fetching ONLY Table Data (Proof of Concept)...")
+    url = "https://word.tips/spelling-bee-answers/"
+    data = get_bee_answers(url)
 
     final_json = {
         "last_updated": now,
         "date": datetime.now().strftime("%Y-%m-%d"),
-        "spelling_bee_answers": bee_data,
-        "status": "Check this JSON for real words now"
+        "real_answers": data if data else "Table not found - Check Logic",
+        "status": "Success" if data else "Failed to find words"
     }
 
     with open('data.json', 'w') as f:
         json.dump(final_json, f, indent=4)
-    print("✅ Done! Check data.json")
+    print("✅ Check data.json for REAL words now!")
 
 if __name__ == "__main__":
     main()
