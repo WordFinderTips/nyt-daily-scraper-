@@ -1,10 +1,22 @@
 {
-    "last_updated": "2026-01-13 19:06:19",
+    "last_updated": "2026-01-13 19:52:58",
     "date": "2026-01-13",
     "games": {
-        "spelling_bee": {},
-        "connections": [],
-        "strands": {}
+        "spelling_bee": {
+            "status": "Updated",
+            "link": "https://word.tips/nyt-spelling-bee-answers/"
+        },
+        "connections": {
+            "status": "Updated",
+            "link": "https://word.tips/nyt-connections-answers/"
+        },
+        "strands": {
+            "status": "Updated",
+            "link": "https://word.tips/nyt-strands-answers/"
+        }
     },
-    "status": "Failed"
+    "la_times": {
+        "daily_crossword": "https://games.arkadium.com/latimes-daily-crossword/data/260113.json"
+    },
+    "status": "Live Update Success"
 }
