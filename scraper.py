@@ -1,57 +1,74 @@
 import requests
 import json
+import re
 from datetime import datetime
 
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-}
+# Yahan apni Scrapeless API Key dalain
+API_KEY = 'sk_nVuhvhluWV4sjpXfO7s8OjUJm8Zip8tjB1ZiX39LuHPcHJ1uEhhGLf9tD0OshMWQ'
 
-def get_la_times():
-    # LA Times API with Error Handling
+def fetch_nyt_game(url):
+    api_url = "https://api.scrapeless.com/v1/scraper/request"
+    payload = {
+        "url": url,
+        "method": "GET",
+        "proxy_country": "US"
+    }
+    headers = {"x-api-token": API_KEY, "Content-Type": "application/json"}
     try:
-        date_id = datetime.now().strftime("%y%m%d")
-        url = f"https://games.arkadium.com/latimes-daily-crossword/data/{date_id}.json"
-        res = requests.get(url, headers=headers, timeout=10)
+        res = requests.post(api_url, headers=headers, json=payload, timeout=30)
         if res.status_code == 200:
-            return res.json()
-    except Exception as e:
-        print(f"LA Times Error: {e}")
-    return {"status": "Unavailable"}
+            html = res.json().get('body', '')
+            match = re.search(r'window\.gameData\s*=\s*(\{.*?\})', html)
+            if match:
+                return json.loads(match.group(1))
+    except:
+        return None
+    return None
+
+def get_la_times(game_path):
+    # LA Times (Arkadium) API logic
+    date_id = datetime.now().strftime("%y%m%d")
+    url = f"https://games.arkadium.com/{game_path}/data/{date_id}.json"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    try:
+        res = requests.get(url, headers=headers, timeout=10)
+        return res.json() if res.status_code == 200 else "Unavailable"
+    except:
+        return "Error"
 
 def main():
-    try:
-        print("🚀 Starting Scraper...")
-        today = datetime.now().strftime("%Y-%m-%d")
-        
-        # NYT Data (Fixed values for now to ensure success)
-        nyt_data = {
-            "spelling_bee": {
-                "center": "M",
-                "letters": "EILNTY",
-                "pangrams": ["IMMINENTLY", "EMINENTLY"]
-            },
-            "strands": {
-                "theme": "You need to chill",
-                "spangram": "FROZENFOOD"
-            }
+    print("🚀 Extracting All Games Data...")
+    
+    # 1. Fetch NYT Games
+    bee_raw = fetch_nyt_game("https://www.nytimes.com/puzzles/spelling-bee")
+    conn_raw = fetch_nyt_game("https://www.nytimes.com/puzzles/connections")
+    strands_raw = fetch_nyt_game("https://www.nytimes.com/puzzles/strands")
+    wordle_raw = fetch_nyt_game("https://www.nytimes.com/games/wordle")
+    
+    # 2. Structure Final JSON
+    master_data = {
+        "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "nyt": {
+            "spelling_bee": bee_raw.get('today', {}) if bee_raw else {},
+            "connections": conn_raw.get('categories', []) if conn_raw else [],
+            "strands": strands_raw.get('clues', {}) if strands_raw else {},
+            "wordle": wordle_raw.get('today', {}) if wordle_raw else {},
+            "letter_boxed": fetch_nyt_game("https://www.nytimes.com/puzzles/letter-boxed") or {}
+        },
+        "la_times": {
+            "daily_crossword": get_la_times("latimes-daily-crossword"),
+            "mini_crossword": get_la_times("latimes-mini-crossword"),
+            "sudoku": get_la_times("daily-sudoku")
+        },
+        "other_games": {
+            "tiles": "https://www.nytimes.com/puzzles/tiles",
+            "vertex": "https://www.nytimes.com/puzzles/vertex"
         }
+    }
 
-        master_json = {
-            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "date": today,
-            "nyt_games": nyt_data,
-            "la_times": get_la_times(),
-            "status": "Success"
-        }
-
-        with open('data.json', 'w') as f:
-            json.dump(master_json, f, indent=4)
-        print("✅ Success: data.json updated.")
-        
-    except Exception as e:
-        print(f"❌ Main Loop Error: {e}")
-        # Error hone ke bawajood exit code 0 rakhna taake workflow fail na ho
-        exit(0) 
+    with open('data.json', 'w') as f:
+        json.dump(master_data, f, indent=4)
+    print("✅ All Game Data saved to data.json!")
 
 if __name__ == "__main__":
     main()
