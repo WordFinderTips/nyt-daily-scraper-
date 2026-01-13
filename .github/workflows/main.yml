@@ -2,7 +2,7 @@ name: NYT Master Scraper
 
 on:
   schedule:
-    - cron: '30 04 * * *'
+    - cron: '0 * * * *' # Har ghante chalega
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -31,9 +31,6 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          # Reset local changes before pulling
-          git checkout data.json || echo "File doesn't exist yet"
-          git pull origin main --rebase
           git add data.json
-          git commit -m "Update Games Data" || echo "No changes to commit"
-          git push origin main
+          git commit -m "Auto Update Data" || echo "No changes"
+          git push origin main --force
