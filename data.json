@@ -1,5 +1,5 @@
 {
-    "last_updated": "2026-01-13 11:52:44",
+    "last_updated": "2026-01-13 12:10:15",
     "date": "2026-01-13",
     "nyt_games": {
         "spelling_bee": {
@@ -15,12 +15,6 @@
             "spangram": "FROZENFOOD"
         }
     },
-    "la_times": {
-        "daily_crossword_data": {
-            "url": "https://www.latimes.com/games/daily-crossword"
-        },
-        "mini_url": "https://www.latimes.com/games/mini-crossword",
-        "sudoku_url": "https://www.latimes.com/games/daily-sudoku"
-    },
-    "source_status": "Verified"
+    "la_times_status": "Online",
+    "status": "Completed Fast"
 }
