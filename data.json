@@ -1,11 +1,11 @@
 {
-    "last_updated": "2026-01-13 20:03:31",
-    "date": "2026-01-13",
-    "connections_today": [
-        "Update coming soon"
+    "last_updated": "2026-01-13 20:05:59",
+    "note": "Timezone: Pakistan (PKT). Data updates when US puzzles go live.",
+    "connections_preview": [
+        "Fetching next update..."
     ],
-    "la_times_crossword": {
-        "error": "Data not ready yet for this date"
+    "la_times_data": {
+        "error": "Puzzles not released yet"
     },
-    "status": "System Online"
+    "status": "Running"
 }
