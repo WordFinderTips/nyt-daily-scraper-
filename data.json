@@ -1,6 +1,15 @@
 {
-    "last_updated": "2026-01-13 20:41:39",
-    "date": "2026-01-13",
-    "real_answers": "Table not found - Check Logic",
-    "status": "Failed to find words"
+    "last_updated": "2026-01-13 20:44:45",
+    "date": "2026-01-14",
+    "extracted_words": [
+        "BINGO",
+        "CONFIG",
+        "FFFFFF",
+        "SPEC",
+        "FEEDBACK",
+        "PIPS",
+        "COPY",
+        "SPOILER"
+    ],
+    "status": "Final Brute Force"
 }
