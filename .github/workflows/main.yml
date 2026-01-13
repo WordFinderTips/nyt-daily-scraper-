@@ -2,8 +2,10 @@ name: NYT Master Scraper
 
 on:
   schedule:
-    - cron: '0 * * * *' # Har ghante chalega
-  workflow_dispatch:
+    # Pakistani waqt ke mutabiq rozana subha 9:00 AM ya 10:00 AM par chalay ga
+    # Jab NYT ke naye puzzles live hotay hain.
+    - cron: '30 04 * * *' 
+  workflow_dispatch: # Taake aap jab chahein manually bhi chala sakein
 
 jobs:
   build:
@@ -11,7 +13,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -22,7 +24,8 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: pip install requests beautifulsoup4
+        run: |
+          pip install requests
 
       - name: Run Scraper
         run: python scraper.py
@@ -31,6 +34,9 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          # Purani file reset karna taake conflict na aaye
+          git checkout data.json || echo "File doesn't exist yet"
+          git pull origin main --rebase
           git add data.json
-          git commit -m "Auto Update Data" || echo "No changes"
+          git commit -m "Update Daily Puzzles Data [Skip CI]" || echo "No changes to commit"
           git push origin main --force
