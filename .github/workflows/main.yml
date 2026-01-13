@@ -32,12 +32,11 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # Conflict se bachne ke liye naya data pull karna
+          # Reset local changes before pulling
+          git checkout data.json || echo "File doesn't exist yet"
+          
           git pull origin main --rebase
           
-          # File add aur commit
           git add data.json
-          git commit -m "Automated Data Update [skip ci]" || echo "No changes to commit"
-          
-          # Force push taake har haal mein update ho
-          git push origin main --force
+          git commit -m "Update Games Data" || echo "No changes to commit"
+          git push origin main
