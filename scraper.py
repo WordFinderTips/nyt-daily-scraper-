@@ -3,7 +3,8 @@ import json
 import re
 from datetime import datetime
 
-API_KEY = '0H648XHAU6JCPP1O6QGWSH4TDA2AUZGIGAQ3BJXTV2E4V7QXJP46BRD1BFQFPCIY5KMVUNNIGPISV9O7'
+# Apni ScrapingBee API Key yahan dalein
+API_KEY = 'YOUR_SCRAPINGBEE_API_KEY'
 
 def get_nyt_game_data(game_name):
     target_url = f"https://www.nytimes.com/puzzles/{game_name}"
@@ -16,7 +17,7 @@ def get_nyt_game_data(game_name):
         'render_js': 'false' 
     }
     try:
-        res = requests.get(api_url, params=params, timeout=40)
+        res = requests.get(api_url, params=params, timeout=45)
         match = re.search(r'window\.gameData\s*=\s*(\{.*?\})(?=;|</script>)', res.text, re.DOTALL)
         if match:
             return json.loads(match.group(1)).get('today', {})
@@ -26,37 +27,30 @@ def get_nyt_game_data(game_name):
 
 def main():
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print("🚀 Fetching All NYT Games Direct...")
+    print(f"🚀 Fetching Data at {now}...")
 
-    # Teeno games ka data (Total 3 credits kharch honge)
+    # Spelling Bee aur Connections ka data nikalna
     bee = get_nyt_game_data("spelling-bee")
     conn = get_nyt_game_data("connections")
-    strands = get_nyt_game_data("strands")
 
     master_json = {
         "last_updated": now,
         "date": datetime.now().strftime("%Y-%m-%d"),
-        "games": {
-            "spelling_bee": {
-                "letters": {"center": bee.get('centerLetter'), "outer": bee.get('outerLetters')},
-                "answers": bee.get('answers'),
-                "pangrams": bee.get('pangrams')
-            },
-            "connections": {
-                "categories": conn.get('categories', [])
-            },
-            "strands": {
-                "words": strands.get('clueWords'),
-                "spangram": strands.get('spangram'),
-                "theme": strands.get('theme')
-            }
+        "spelling_bee": {
+            "letters": {"center": bee.get('centerLetter'), "outer": bee.get('outerLetters')},
+            "answers": bee.get('answers'),
+            "pangrams": bee.get('pangrams')
         },
-        "status": "Success - All NYT Data Live"
+        "connections": {
+            "categories": conn.get('categories', [])
+        },
+        "status": "Success"
     }
 
+    # File write karna
     with open('data.json', 'w') as f:
         json.dump(master_json, f, indent=4)
-    print("✅ All Puzzles Updated!")
+    print("✅ data.json locally updated.")
 
 if __name__ == "__main__":
     main()
