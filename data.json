@@ -1,11 +1,17 @@
 {
-    "last_updated": "2026-01-13 20:05:59",
-    "note": "Timezone: Pakistan (PKT). Data updates when US puzzles go live.",
-    "connections_preview": [
-        "Fetching next update..."
-    ],
-    "la_times_data": {
-        "error": "Puzzles not released yet"
+    "last_updated": "2026-01-13 20:08:59",
+    "date_requested": "2026-01-13",
+    "la_times_13_jan": {
+        "error": "13th Jan data not found"
     },
-    "status": "Running"
+    "nyt_preview": {
+        "spelling_bee": "Data fetch block by NYT, use LA Times for proof",
+        "connections": [
+            "Group 1",
+            "Group 2",
+            "Group 3",
+            "Group 4"
+        ]
+    },
+    "status": "Success - 13th Jan Proof"
 }
