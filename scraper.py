@@ -2,85 +2,66 @@ import requests
 import json
 import re
 from datetime import datetime
-from urllib.parse import quote
 
-# ScrapingBee API Key yahan dalain
-API_KEY = '0H648XHAU6JCPP1O6QGWSH4TDA2AUZGIGAQ3BJXTV2E4V7QXJP46BRD1BFQFPCIY5KMVUNNIGPISV9O7'
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+}
 
-def get_via_scrapingbee(target_url):
-    api_url = "https://app.scrapingbee.com/api/v1/"
-    # Hum 'render_js': 'true' use karenge taake dynamic data load ho jaye
-    params = {
-        'api_key': API_KEY,
-        'url': target_url,
-        'render_js': 'true', 
-        'country_code': 'us'
-    }
+def get_nyt_data(url):
     try:
-        res = requests.get(api_url, params=params, timeout=60)
+        res = requests.get(url, headers=headers, timeout=15)
         if res.status_code == 200:
-            return res.text
-        else:
-            print(f"Error {res.status_code}: {res.text}")
-    except Exception as e:
-        print(f"Network Error: {e}")
-    return None
+            # Game data nikalne ka pattern
+            match = re.search(r'window\.gameData\s*=\s*(\{.*?\})(?=;|</script>)', res.text, re.DOTALL)
+            if match:
+                return json.loads(match.group(1))
+    except:
+        return {}
+    return {}
 
-def extract_game_data(html):
-    if not html: return {}
-    
-    # Pattern 1: window.gameData
-    match = re.search(r'window\.gameData\s*=\s*(\{.*?\})(?=;|</script>)', html, re.DOTALL)
-    if match:
-        try:
-            return json.loads(match.group(1))
-        except: pass
-
-    # Pattern 2: Scripts with JSON content
-    match = re.search(r'{"today":\{.*?\}\}', html)
-    if match:
-        try:
-            return json.loads(match.group(0))
-        except: pass
-
+def get_la_times_crossword(path):
+    # LA Times format: YYMMDD
+    date_str = datetime.now().strftime("%y%m%d")
+    url = f"https://games.arkadium.com/{path}/data/{date_str}.json"
+    try:
+        res = requests.get(url, headers=headers, timeout=10)
+        if res.status_code == 200:
+            return res.json()
+    except:
+        return {"status": "LA Times Fetch Error"}
     return {}
 
 def main():
-    print("🚀 Starting Advanced Extraction...")
+    print("🚀 Scraping NYT (US) and LA Times...")
     today = datetime.now().strftime("%Y-%m-%d")
     
-    games_to_fetch = {
-        "spelling_bee": "https://www.nytimes.com/puzzles/spelling-bee",
-        "connections": "https://www.nytimes.com/puzzles/connections",
-        "strands": "https://www.nytimes.com/puzzles/strands",
-        "wordle": "https://www.nytimes.com/games/wordle"
-    }
-    
-    final_games_data = {}
+    # 1. NYT Games
+    bee = get_nyt_data("https://www.nytimes.com/puzzles/spelling-bee")
+    strands = get_nyt_data("https://www.nytimes.com/puzzles/strands")
+    conn = get_nyt_data("https://www.nytimes.com/puzzles/connections")
 
-    for game, url in games_to_fetch.items():
-        print(f"Fetching {game}...")
-        html = get_via_scrapingbee(url)
-        data = extract_game_data(html)
-        
-        # Structure cleanup
-        if game in ["spelling_bee", "strands"]:
-            final_games_data[game] = data.get('today', data)
-        elif game == "connections":
-            final_games_data[game] = data.get('categories', data)
-        else:
-            final_games_data[game] = data
+    # 2. LA Times Games
+    la_daily = get_la_times_crossword("latimes-daily-crossword")
+    la_mini = get_la_times_crossword("latimes-mini-crossword")
 
     master_json = {
         "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "date": today,
-        "games": final_games_data,
-        "status": "Success" if any(final_games_data.values()) else "Data Extraction Failed"
+        "nyt_us_time": {
+            "spelling_bee": bee.get('today', {}),
+            "strands": strands.get('today', {}),
+            "connections": conn.get('categories', [])
+        },
+        "la_times": {
+            "daily_crossword": la_daily,
+            "mini_crossword": la_mini
+        },
+        "status": "Success"
     }
 
     with open('data.json', 'w') as f:
         json.dump(master_json, f, indent=4)
-    print("✅ data.json has been updated with deep scraping.")
+    print("✅ data.json Updated with NYT and LA Times data!")
 
 if __name__ == "__main__":
     main()
