@@ -1,11 +1,13 @@
 {
-    "last_updated": "2026-01-13 19:55:45",
+    "last_updated": "2026-01-13 20:00:51",
     "date": "2026-01-13",
-    "nyt_games": {
-        "spelling_bee": {},
-        "connections": [],
-        "strands": {}
+    "la_times": {
+        "error": "LA Times side down"
     },
-    "la_times": {},
-    "status": "Success"
+    "nyt_backup_links": {
+        "spelling_bee": "https://word.tips/nyt-spelling-bee-answers/",
+        "connections": "https://word.tips/nyt-connections-answers/",
+        "strands": "https://word.tips/nyt-strands-answers/"
+    },
+    "status": "Success - Data from Arkadium"
 }
