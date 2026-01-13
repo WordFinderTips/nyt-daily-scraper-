@@ -1,22 +1,47 @@
 {
-    "last_updated": "2026-01-13 20:35:47",
+    "last_updated": "2026-01-13 20:39:07",
     "date": "2026-01-13",
-    "source": "WordTips via ScrapingBee",
-    "puzzles": {
-        "crossword": [
-            "Error: 400"
-        ],
-        "connections": [
-            "Error: 400"
-        ],
-        "spelling_bee": [
-            "Error: 400"
-        ],
-        "strands": [
-            "Error: 400"
-        ],
-        "la_times": [
-            "Error: 400"
-        ]
-    }
+    "spelling_bee_answers": [
+        "Wordle Solver",
+        "Word Unscramble",
+        "Word Scrambler",
+        "Anagram Solver",
+        "Scrabble Solver",
+        "Words Start With",
+        "Words With",
+        "Words Ending In",
+        "Words By Length",
+        "Connections Today Hints",
+        "Strands Hints Today",
+        "NYT Pips Answers Today",
+        "Wordle Hints Today",
+        "Spelling Bee Answers Today",
+        "NYT Capture Today Hints",
+        "Bracket City Answers Today",
+        "Contexto Answers Today",
+        "Letter Boxed Answers Today",
+        "Blossom Game Answers Today",
+        "Crossword Solver",
+        "Crossword Popular Clues",
+        "Word finder",
+        "Wordle Solver",
+        "Mini Daily Crossword",
+        "Wordle Unlimited",
+        "Word Unscramble",
+        "Word Scrambler",
+        "Anagram Solver",
+        "Scrabble Solver",
+        "Words Start With",
+        "Words With",
+        "Words Ending In",
+        "Words By Length",
+        "Connections Today Hints",
+        "Strands Hints Today",
+        "NYT Pips Answers Today",
+        "Wordle Hints Today",
+        "Spelling Bee Answers Today",
+        "NYT Capture Today Hints",
+        "Bracket City Answers Today"
+    ],
+    "status": "Check this JSON for real words now"
 }
