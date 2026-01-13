@@ -8,62 +8,62 @@ from urllib.parse import quote
 API_KEY = '0H648XHAU6JCPP1O6QGWSH4TDA2AUZGIGAQ3BJXTV2E4V7QXJP46BRD1BFQFPCIY5KMVUNNIGPISV9O7'
 
 def get_via_scrapingbee(target_url):
-    # ScrapingBee API endpoint
-    api_url = f"https://app.scrapingbee.com/api/v1/?api_key={API_KEY}&url={quote(target_url)}&render_js=false"
+    # Hum 'premium_proxy' aur 'country_code=us' use kar rahe hain
+    api_url = "https://app.scrapingbee.com/api/v1/"
+    params = {
+        'api_key': API_KEY,
+        'url': target_url,
+        'premium_proxy': 'true',
+        'country_code': 'us',
+        'wait_for': 'window.gameData' # Wait taake JS load ho jaye
+    }
     try:
-        res = requests.get(api_url, timeout=30)
+        res = requests.get(api_url, params=params, timeout=40)
         if res.status_code == 200:
             return res.text
+        else:
+            print(f"Error {res.status_code}: {res.text}")
     except Exception as e:
-        print(f"Error fetching {target_url}: {e}")
+        print(f"Fetch Error: {e}")
     return None
 
-def extract_nyt_json(html):
+def extract_json(html):
     if not html: return {}
     match = re.search(r'window\.gameData\s*=\s*(\{.*?\})', html)
+    if not match:
+        match = re.search(r'window\.gameData\s*=\s*(\{.*?)\s*</script>', html)
     if match:
-        return json.loads(match.group(1))
+        try:
+            return json.loads(match.group(1).rstrip(';'))
+        except:
+            return {}
     return {}
 
 def main():
-    print("🚀 ScrapingBee Master Run Starting...")
+    print("🚀 Ultra-Scraper starting...")
     today = datetime.now().strftime("%Y-%m-%d")
     
-    # 1. Fetching NYT Games
+    # 1. NYT Spelling Bee (Sub se pehle isay fix karte hain)
     bee_html = get_via_scrapingbee("https://www.nytimes.com/puzzles/spelling-bee")
+    bee_data = extract_json(bee_html).get('today', {})
+
+    # 2. NYT Connections
     conn_html = get_via_scrapingbee("https://www.nytimes.com/puzzles/connections")
-    strands_html = get_via_scrapingbee("https://www.nytimes.com/puzzles/strands")
-    wordle_html = get_via_scrapingbee("https://www.nytimes.com/games/wordle")
+    conn_data = extract_json(conn_html).get('categories', [])
 
-    # 2. Extracting Data
-    bee_data = extract_nyt_json(bee_html).get('today', {})
-    conn_data = extract_nyt_json(conn_html).get('categories', [])
-    strands_data = extract_nyt_json(strands_html).get('clues', {})
-    wordle_data = extract_nyt_json(wordle_html)
-
-    # 3. LA Times (Simple Fetch as they are less strict)
-    la_date = datetime.now().strftime("%y%m%d")
-    la_url = f"https://games.arkadium.com/latimes-daily-crossword/data/{la_date}.json"
-    la_res = requests.get(la_url, headers={'User-Agent': 'Mozilla/5.0'})
-    la_data = la_res.json() if la_res.status_code == 200 else {"status": "LA Times API limit or error"}
-
-    # Final Master JSON
     master_json = {
         "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "date": today,
         "nyt": {
             "spelling_bee": bee_data,
-            "connections": conn_data,
-            "strands": strands_data,
-            "wordle": wordle_data
+            "connections": conn_data
         },
-        "la_times": la_data,
-        "status": "All Data Collected via ScrapingBee"
+        "status": "Success" if bee_data else "Failed - Proxy Blocked"
     }
 
     with open('data.json', 'w') as f:
         json.dump(master_json, f, indent=4)
-    print("✅ Success! data.json updated with all games.")
+    print("✅ data.json Updated!")
 
 if __name__ == "__main__":
     main()
