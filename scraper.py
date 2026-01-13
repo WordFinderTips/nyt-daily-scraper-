@@ -1,75 +1,71 @@
 import requests
 import json
-from bs4 import BeautifulSoup
 from datetime import datetime
 
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0'}
+# ScrapingBee API Key yahan dalein
+API_KEY = '0H648XHAU6JCPP1O6QGWSH4TDA2AUZGIGAQ3BJXTV2E4V7QXJP46BRD1BFQFPCIY5KMVUNNIGPISV9O7'
 
-def clean_data(url, game_type):
-    try:
-        res = requests.get(url, headers=headers, timeout=20)
-        soup = BeautifulSoup(res.text, 'html.parser')
-        results = []
+def scrape_all_wordtips():
+    # Hum sabse main links target kar rahe hain jo aapne diye thay
+    urls = {
+        "crossword": "https://word.tips/todays-nyt-the-crossword-clues-answers-hints/",
+        "connections": "https://word.tips/connections-hints-today/",
+        "spelling_bee": "https://word.tips/spelling-bee-answers/",
+        "strands": "https://word.tips/todays-nyt-strands-hints-spangram-answers/",
+        "la_times": "https://word.tips/crossword-solver/los-angeles-times-daily/"
+    }
+
+    master_results = {}
+    
+    # Aik ek karke links process honge. Trial account hai toh har link 1 credit lega.
+    # Agar aapko sirf 1 credit kharch karna hai, toh sirf 1 URL rakhein.
+    
+    for name, target_url in urls.items():
+        print(f"Scraping {name}...")
         
-        # Article area target karein
-        content = soup.find('article')
-        if not content: return []
+        api_url = "https://app.scrapingbee.com/api/v1/"
+        params = {
+            'api_key': API_KEY,
+            'url': target_url,
+            'render_js': 'false', # Credit bachane ke liye JS off
+            'extract_rules': {
+                "answers": {
+                    "selector": "article li, article td", # WordTips ke answers hamesha yahan hote hain
+                    "type": "list"
+                }
+            }
+        }
 
-        if "spelling_bee" in game_type:
-            # Spelling bee ke table cells se words nikalna
-            for td in content.find_all('td'):
-                txt = td.get_text().strip()
-                if len(txt) > 3 and txt.isalpha(): results.append(txt.upper())
-        
-        elif "connections" in game_type:
-            # Connections ki categories (aksar bold ya specific class mein hoti hain)
-            for li in content.find_all('li'):
-                if ':' in li.get_text(): results.append(li.get_text().strip())
+        try:
+            res = requests.get(api_url, params=params, timeout=30)
+            if res.status_code == 200:
+                data = res.json()
+                # Faltu kachra saaf karne ke liye filter
+                clean_list = [item for item in data.get('answers', []) if 2 < len(item) < 40]
+                master_results[name] = clean_list[:30] # Top 30 answers
+            else:
+                master_results[name] = [f"Error: {res.status_code}"]
+        except Exception as e:
+            master_results[name] = [str(e)]
 
-        else:
-            # Crossword Clues target karein
-            for item in content.find_all(['li', 'div'], class_=re.compile(r'clue|answer|item')):
-                txt = item.get_text().strip()
-                if len(txt) > 5: results.append(txt)
-            
-            # Agar upar wala fail ho toh general cleaning
-            if not results:
-                for li in content.find_all('li'):
-                    txt = li.get_text().strip()
-                    if "Crossword Clue" in txt or "Answer:" in txt:
-                        results.append(txt.replace('\n', ' ').replace('\t', ' '))
-
-        return list(dict.fromkeys(results))[:50]
-    except:
-        return []
+    return master_results
 
 def main():
-    import re
-    print("🚀 Running Laser Scraper on all links...")
-    urls = {
-        "nyt_crossword": "https://word.tips/todays-nyt-the-crossword-clues-answers-hints/",
-        "nyt_mini": "https://word.tips/todays-nyt-mini-crossword-clues-answers/",
-        "nyt_strands": "https://word.tips/todays-nyt-strands-hints-spangram-answers/",
-        "nyt_connections": "https://word.tips/connections-hints-today/",
-        "nyt_spelling_bee": "https://word.tips/spelling-bee-answers/",
-        "nyt_wordle": "https://word.tips/todays-wordle-answer/",
-        "la_times_daily": "https://word.tips/crossword-solver/los-angeles-times-daily/",
-        "usa_today_daily": "https://word.tips/crossword-solver/usa-today/"
-    }
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    final_data = {}
-    for name, link in urls.items():
-        print(f"Cleaning {name}...")
-        final_data[name] = clean_data(link, name)
-
-    output = {
-        "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "puzzles": final_data
+    # Data fetch karein
+    puzzles_data = scrape_all_wordtips()
+    
+    final_json = {
+        "last_updated": now,
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "source": "WordTips via ScrapingBee",
+        "puzzles": puzzles_data
     }
 
     with open('data.json', 'w') as f:
-        json.dump(output, f, indent=4)
-    print("✅ Success! Clean data saved.")
+        json.dump(final_json, f, indent=4)
+    print("✅ data.json is now updated with real answers!")
 
 if __name__ == "__main__":
     main()
