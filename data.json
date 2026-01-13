@@ -1,13 +1,7 @@
 {
-    "date": "1/13/2026",
-    "crossword": {
-        "across": [],
-        "down": []
-    },
-    "spelling_bee": {
-        "center": "M",
-        "letters": "EILNTY",
-        "pangram": "IMMINENTLY"
-    },
-    "status": "Verified"
+    "last_updated": "2026-01-13 11:25:18",
+    "date": "2026-01-13",
+    "spelling_bee": {},
+    "connections": {},
+    "status": "Failed to fetch Bee"
 }
