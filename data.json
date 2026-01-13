@@ -1,5 +1,6 @@
 {
-    "last_updated": "2026-01-13 11:29:43",
+    "last_updated": "2026-01-13 11:47:41",
+    "date": "2026-01-13",
     "nyt_games": {
         "spelling_bee": {
             "center": "M",
@@ -7,18 +8,19 @@
             "pangrams": [
                 "IMMINENTLY",
                 "EMINENTLY"
-            ],
-            "date": "2026-01-13"
+            ]
         },
         "strands": {
             "theme": "You need to chill",
             "spangram": "FROZENFOOD"
         }
     },
-    "la_times_games": {
-        "daily_crossword": "https://www.latimes.com/games/daily-crossword",
-        "mini_crossword": "https://www.latimes.com/games/mini-crossword",
-        "sudoku": "https://www.latimes.com/games/daily-sudoku"
+    "la_times": {
+        "daily_crossword_data": {
+            "url": "https://www.latimes.com/games/daily-crossword"
+        },
+        "mini_url": "https://www.latimes.com/games/mini-crossword",
+        "sudoku_url": "https://www.latimes.com/games/daily-sudoku"
     },
-    "source_status": "Active"
+    "source_status": "Verified"
 }
