@@ -1,44 +1,64 @@
 import requests
 import json
+import re
 from datetime import datetime
+from bs4 import BeautifulSoup # BeautifulSoup use kar rahe hain taake data safayi se nikle
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 }
 
-def get_la_times_13():
-    # 13 January ka fix date ID
-    url = "https://games.arkadium.com/latimes-daily-crossword/data/260113.json"
+def fetch_wordtips_content(url):
     try:
-        res = requests.get(url, headers=headers, timeout=15)
+        res = requests.get(url, headers=headers, timeout=20)
         if res.status_code == 200:
-            return res.json()
+            soup = BeautifulSoup(res.text, 'html.parser')
+            # Word.Tips par answers aksar <strong> tags ya tables mein hote hain
+            # Hum saare list items aur bold text nikal rahe hain
+            results = []
+            for item in soup.find_all(['li', 'strong']):
+                text = item.get_text().strip()
+                if 2 < len(text) < 100: # Sirf kaam ka text rakhne ke liye
+                    results.append(text)
+            return results[:30] # Top 30 points kafi hain
     except:
-        return {"error": "Connection issue"}
-    return {"error": "13th Jan data not found"}
+        return ["Link Error"]
+    return []
 
 def main():
-    print("🚀 Fetching 13th January Data specifically...")
+    print("🚀 Scraping all Word.Tips Daily Links...")
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    # LA Times ka asli 13 Jan ka data
-    la_data = get_la_times_13()
+    # Aapke diye hue links ka structure
+    urls = {
+        "nyt_crossword": "https://word.tips/todays-nyt-the-crossword-clues-answers-hints/",
+        "nyt_mini": "https://word.tips/todays-nyt-mini-crossword-clues-answers/",
+        "nyt_strands": "https://word.tips/todays-nyt-strands-hints-spangram-answers/",
+        "nyt_connections": "https://word.tips/connections-hints-today/",
+        "nyt_spelling_bee": "https://word.tips/spelling-bee-answers/",
+        "nyt_pips": "https://word.tips/nyt-pips-todays-hints-answers/",
+        "nyt_wordle": "https://word.tips/todays-wordle-answer/",
+        "la_times_daily": "https://word.tips/crossword-solver/los-angeles-times-daily/",
+        "la_times_mini": "https://word.tips/crossword-solver/los-angeles-times-mini/",
+        "usa_today_daily": "https://word.tips/crossword-solver/usa-today/",
+        "usa_today_quick": "https://word.tips/crossword-solver/usa-today-quick/"
+    }
+    
+    master_data = {}
+    for game_name, link in urls.items():
+        print(f"Fetching {game_name}...")
+        master_data[game_name] = fetch_wordtips_content(link)
 
-    master_json = {
+    final_json = {
         "last_updated": now,
-        "date_requested": "2026-01-13",
-        "la_times_13_jan": la_data,
-        # NYT ke liye hum static dummy data daal rahe hain taake structure dikh jaye
-        "nyt_preview": {
-            "spelling_bee": "Data fetch block by NYT, use LA Times for proof",
-            "connections": ["Group 1", "Group 2", "Group 3", "Group 4"]
-        },
-        "status": "Success - 13th Jan Proof"
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "puzzles_data": master_data,
+        "status": "Success"
     }
 
     with open('data.json', 'w') as f:
-        json.dump(master_json, f, indent=4)
-    print(f"✅ Proof: data.json updated with 13th Jan data.")
+        json.dump(final_json, f, indent=4)
+    print(f"✅ All {len(urls)} links scraped into data.json")
 
 if __name__ == "__main__":
     main()
