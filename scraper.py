@@ -1,5 +1,6 @@
 import requests
 import json
+import re
 from datetime import datetime
 
 headers = {
@@ -7,39 +8,43 @@ headers = {
 }
 
 def get_la_times():
-    # LA Times ka direct API source (Sabse stable)
+    # Aaj ki naya date ID (260114)
     date_id = datetime.now().strftime("%y%m%d")
     url = f"https://games.arkadium.com/latimes-daily-crossword/data/{date_id}.json"
     try:
         res = requests.get(url, headers=headers, timeout=15)
-        return res.json() if res.status_code == 200 else {"error": "LA Times side down"}
+        if res.status_code == 200:
+            return res.json()
     except:
-        return {}
+        return {"error": "Connection issue"}
+    return {"error": "Data not ready yet for this date"}
+
+def get_connections_answers():
+    # Word.tips se Connections ke answers nikalne ka tareeka
+    url = "https://word.tips/nyt-connections-answers/"
+    try:
+        res = requests.get(url, headers=headers, timeout=15)
+        # Category names nikalne ka logic
+        categories = re.findall(r'<h3>(.*?)</h3>', res.text)
+        return categories if categories else ["Update coming soon"]
+    except:
+        return []
 
 def main():
-    print("🚀 Fetching from stable backup sources...")
+    print("🚀 Fetching Fresh Data for Jan 14...")
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    # LA Times Data
-    la_data = get_la_times()
-    
-    # NYT Backup (Word.Tips se answers ka rasta)
-    # Kyunki NYT direct GitHub ko block kar raha hai
     master_json = {
         "last_updated": now,
         "date": datetime.now().strftime("%Y-%m-%d"),
-        "la_times": la_data,
-        "nyt_backup_links": {
-            "spelling_bee": "https://word.tips/nyt-spelling-bee-answers/",
-            "connections": "https://word.tips/nyt-connections-answers/",
-            "strands": "https://word.tips/nyt-strands-answers/"
-        },
-        "status": "Success - Data from Arkadium"
+        "connections_today": get_connections_answers(),
+        "la_times_crossword": get_la_times(),
+        "status": "System Online"
     }
 
     with open('data.json', 'w') as f:
         json.dump(master_json, f, indent=4)
-    print(f"✅ data.json populated at {now}")
+    print(f"✅ data.json Updated for {now}")
 
 if __name__ == "__main__":
     main()
