@@ -2,73 +2,68 @@ import requests
 import json
 import re
 from datetime import datetime
+from urllib.parse import quote
 
-# Yahan apni Scrapeless API Key dalain
-API_KEY = 'sk_nVuhvhluWV4sjpXfO7s8OjUJm8Zip8tjB1ZiX39LuHPcHJ1uEhhGLf9tD0OshMWQ'
+# ScrapingBee API Key yahan dalain
+API_KEY = '0H648XHAU6JCPP1O6QGWSH4TDA2AUZGIGAQ3BJXTV2E4V7QXJP46BRD1BFQFPCIY5KMVUNNIGPISV9O7'
 
-def fetch_nyt_game(url):
-    api_url = "https://api.scrapeless.com/v1/scraper/request"
-    payload = {
-        "url": url,
-        "method": "GET",
-        "proxy_country": "US"
-    }
-    headers = {"x-api-token": API_KEY, "Content-Type": "application/json"}
+def get_via_scrapingbee(target_url):
+    # ScrapingBee API endpoint
+    api_url = f"https://app.scrapingbee.com/api/v1/?api_key={API_KEY}&url={quote(target_url)}&render_js=false"
     try:
-        res = requests.post(api_url, headers=headers, json=payload, timeout=30)
+        res = requests.get(api_url, timeout=30)
         if res.status_code == 200:
-            html = res.json().get('body', '')
-            match = re.search(r'window\.gameData\s*=\s*(\{.*?\})', html)
-            if match:
-                return json.loads(match.group(1))
-    except:
-        return None
+            return res.text
+    except Exception as e:
+        print(f"Error fetching {target_url}: {e}")
     return None
 
-def get_la_times(game_path):
-    # LA Times (Arkadium) API logic
-    date_id = datetime.now().strftime("%y%m%d")
-    url = f"https://games.arkadium.com/{game_path}/data/{date_id}.json"
-    headers = {"User-Agent": "Mozilla/5.0"}
-    try:
-        res = requests.get(url, headers=headers, timeout=10)
-        return res.json() if res.status_code == 200 else "Unavailable"
-    except:
-        return "Error"
+def extract_nyt_json(html):
+    if not html: return {}
+    match = re.search(r'window\.gameData\s*=\s*(\{.*?\})', html)
+    if match:
+        return json.loads(match.group(1))
+    return {}
 
 def main():
-    print("🚀 Extracting All Games Data...")
+    print("🚀 ScrapingBee Master Run Starting...")
+    today = datetime.now().strftime("%Y-%m-%d")
     
-    # 1. Fetch NYT Games
-    bee_raw = fetch_nyt_game("https://www.nytimes.com/puzzles/spelling-bee")
-    conn_raw = fetch_nyt_game("https://www.nytimes.com/puzzles/connections")
-    strands_raw = fetch_nyt_game("https://www.nytimes.com/puzzles/strands")
-    wordle_raw = fetch_nyt_game("https://www.nytimes.com/games/wordle")
-    
-    # 2. Structure Final JSON
-    master_data = {
+    # 1. Fetching NYT Games
+    bee_html = get_via_scrapingbee("https://www.nytimes.com/puzzles/spelling-bee")
+    conn_html = get_via_scrapingbee("https://www.nytimes.com/puzzles/connections")
+    strands_html = get_via_scrapingbee("https://www.nytimes.com/puzzles/strands")
+    wordle_html = get_via_scrapingbee("https://www.nytimes.com/games/wordle")
+
+    # 2. Extracting Data
+    bee_data = extract_nyt_json(bee_html).get('today', {})
+    conn_data = extract_nyt_json(conn_html).get('categories', [])
+    strands_data = extract_nyt_json(strands_html).get('clues', {})
+    wordle_data = extract_nyt_json(wordle_html)
+
+    # 3. LA Times (Simple Fetch as they are less strict)
+    la_date = datetime.now().strftime("%y%m%d")
+    la_url = f"https://games.arkadium.com/latimes-daily-crossword/data/{la_date}.json"
+    la_res = requests.get(la_url, headers={'User-Agent': 'Mozilla/5.0'})
+    la_data = la_res.json() if la_res.status_code == 200 else {"status": "LA Times API limit or error"}
+
+    # Final Master JSON
+    master_json = {
         "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "date": today,
         "nyt": {
-            "spelling_bee": bee_raw.get('today', {}) if bee_raw else {},
-            "connections": conn_raw.get('categories', []) if conn_raw else [],
-            "strands": strands_raw.get('clues', {}) if strands_raw else {},
-            "wordle": wordle_raw.get('today', {}) if wordle_raw else {},
-            "letter_boxed": fetch_nyt_game("https://www.nytimes.com/puzzles/letter-boxed") or {}
+            "spelling_bee": bee_data,
+            "connections": conn_data,
+            "strands": strands_data,
+            "wordle": wordle_data
         },
-        "la_times": {
-            "daily_crossword": get_la_times("latimes-daily-crossword"),
-            "mini_crossword": get_la_times("latimes-mini-crossword"),
-            "sudoku": get_la_times("daily-sudoku")
-        },
-        "other_games": {
-            "tiles": "https://www.nytimes.com/puzzles/tiles",
-            "vertex": "https://www.nytimes.com/puzzles/vertex"
-        }
+        "la_times": la_data,
+        "status": "All Data Collected via ScrapingBee"
     }
 
     with open('data.json', 'w') as f:
-        json.dump(master_data, f, indent=4)
-    print("✅ All Game Data saved to data.json!")
+        json.dump(master_json, f, indent=4)
+    print("✅ Success! data.json updated with all games.")
 
 if __name__ == "__main__":
     main()
