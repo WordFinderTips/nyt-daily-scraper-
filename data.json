@@ -1,5 +1,5 @@
 {
-    "last_updated": "2026-01-13 17:54:45",
+    "last_updated": "2026-01-13 17:58:17",
     "date": "2026-01-13",
     "nyt_games": {
         "spelling_bee": {
@@ -16,7 +16,7 @@
         }
     },
     "la_times": {
-        "status": "Failed to fetch LA Times answers"
+        "status": "Unavailable"
     },
-    "status": "All Systems Go"
+    "status": "Success"
 }
