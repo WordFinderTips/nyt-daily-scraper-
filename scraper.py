@@ -1,50 +1,55 @@
 import requests
 import json
-import re
 from datetime import datetime
 
 # Apni ScrapingBee API Key
 API_KEY = '0H648XHAU6JCPP1O6QGWSH4TDA2AUZGIGAQ3BJXTV2E4V7QXJP46BRD1BFQFPCIY5KMVUNNIGPISV9O7'
 
 def main():
+    # NYT Spelling Bee ki asli internal API
+    target_url = "https://www.nytimes.com/puzzles/spelling-bee"
     api_url = "https://app.scrapingbee.com/api/v1/"
-    target_url = "https://word.tips/spelling-bee-answers/"
     
     params = {
         'api_key': API_KEY,
         'url': target_url,
+        'premium_proxy': 'true',
+        'country_code': 'us',
         'render_js': 'false' 
     }
     
     try:
-        print("🚀 Brute Force Scraping started...")
-        res = requests.get(api_url, params=params, timeout=30)
-        html_content = res.text
+        print("🚀 Fetching direct from NYT Source...")
+        res = requests.get(api_url, params=params, timeout=40)
+        html = res.text
         
-        # Logic: WordTips ke answers 4 se 10 huroof ke uppercase words hote hain
-        # Hum poore HTML mein se wo words dhoondenge jo sirf CAPS mein hain
-        # Aur filter karenge taake menu items (WORDLE, SOLVER) na ayien
-        all_caps_words = re.findall(r'\b[A-Z]{4,12}\b', html_content)
+        import re
+        # NYT apna sara data is ek line mein rakhta hai
+        match = re.search(r'window\.gameData\s*=\s*(\{.*?\})(?=;|</script>)', html, re.DOTALL)
         
-        # Stop words jo menu ka hissa hote hain
-        stop_words = ["WORDLE", "SOLVER", "TIPS", "LOGIN", "GAMES", "MENU", "BLOG", "TODAY", "SEARCH", "HOME"]
-        
-        clean_words = [w for w in all_caps_words if w not in stop_words]
-        final_list = list(dict.fromkeys(clean_words)) # Duplicates khatam
-
-        master_json = {
-            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "date": "2026-01-14",
-            "extracted_words": final_list if len(final_list) > 5 else "Still no data found",
-            "status": "Final Brute Force"
-        }
+        if match:
+            raw_data = json.loads(match.group(1))
+            today = raw_data.get('today', {})
+            
+            master_json = {
+                "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "date": datetime.now().strftime("%Y-%m-%d"),
+                "game": "Spelling Bee",
+                "center_letter": today.get('centerLetter'),
+                "outer_letters": today.get('outerLetters'),
+                "word_list": today.get('answers'), # Ye hain asli 100% answers
+                "pangrams": today.get('pangrams'),
+                "status": "Success - Direct NYT Data"
+            }
+        else:
+            master_json = {"status": "Failed", "reason": "Could not find gameData on NYT"}
 
     except Exception as e:
         master_json = {"error": str(e), "status": "Failed"}
 
     with open('data.json', 'w') as f:
         json.dump(master_json, f, indent=4)
-    print("✅ data.json force updated.")
+    print("✅ Final Data Saved.")
 
 if __name__ == "__main__":
     main()
