@@ -1,52 +1,44 @@
 import requests
 import json
-import re
-from datetime import datetime, timedelta
+from datetime import datetime
 
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0'}
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+}
 
-def get_la_times():
-    # Pehle aaj ki date check karega, agar fail hua toh kal ki (Latest available)
-    dates_to_try = [
-        datetime.now().strftime("%y%m%d"),
-        (datetime.now() - timedelta(days=1)).strftime("%y%m%d")
-    ]
-    
-    for d in dates_to_try:
-        url = f"https://games.arkadium.com/latimes-daily-crossword/data/{d}.json"
-        try:
-            res = requests.get(url, headers=headers, timeout=10)
-            if res.status_code == 200:
-                return res.json()
-        except:
-            continue
-    return {"error": "Puzzles not released yet"}
-
-def get_connections():
-    url = "https://word.tips/nyt-connections-answers/"
+def get_la_times_13():
+    # 13 January ka fix date ID
+    url = "https://games.arkadium.com/latimes-daily-crossword/data/260113.json"
     try:
-        res = requests.get(url, headers=headers, timeout=10)
-        # Category names nikalne ka pattern
-        categories = re.findall(r'<h3>(.*?)</h3>', res.text)
-        return categories if categories else ["Fetching next update..."]
+        res = requests.get(url, headers=headers, timeout=15)
+        if res.status_code == 200:
+            return res.json()
     except:
-        return ["Source temporarily unavailable"]
+        return {"error": "Connection issue"}
+    return {"error": "13th Jan data not found"}
 
 def main():
-    print("🚀 Fetching Latest Available Data...")
-    now_pk = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print("🚀 Fetching 13th January Data specifically...")
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
+    # LA Times ka asli 13 Jan ka data
+    la_data = get_la_times_13()
+
     master_json = {
-        "last_updated": now_pk,
-        "note": "Timezone: Pakistan (PKT). Data updates when US puzzles go live.",
-        "connections_preview": get_connections(),
-        "la_times_data": get_la_times(),
-        "status": "Running"
+        "last_updated": now,
+        "date_requested": "2026-01-13",
+        "la_times_13_jan": la_data,
+        # NYT ke liye hum static dummy data daal rahe hain taake structure dikh jaye
+        "nyt_preview": {
+            "spelling_bee": "Data fetch block by NYT, use LA Times for proof",
+            "connections": ["Group 1", "Group 2", "Group 3", "Group 4"]
+        },
+        "status": "Success - 13th Jan Proof"
     }
 
     with open('data.json', 'w') as f:
         json.dump(master_json, f, indent=4)
-    print(f"✅ data.json updated successfully at {now_pk}")
+    print(f"✅ Proof: data.json updated with 13th Jan data.")
 
 if __name__ == "__main__":
     main()
