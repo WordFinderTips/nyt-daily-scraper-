@@ -1,9 +1,10 @@
 {
-    "last_updated": "2026-01-13 19:03:57",
+    "last_updated": "2026-01-13 19:06:19",
     "date": "2026-01-13",
-    "nyt": {
+    "games": {
         "spelling_bee": {},
-        "connections": []
+        "connections": [],
+        "strands": {}
     },
-    "status": "Failed - Proxy Blocked"
+    "status": "Failed"
 }
