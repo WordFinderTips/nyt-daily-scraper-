@@ -1,106 +1,13 @@
 {
-    "last_updated": "2026-01-13 20:28:22",
-    "date": "2026-01-13",
+    "last_updated": "2026-01-13 20:31:18",
     "puzzles": {
-        "nyt_crossword": [
-            "Word Tips",
-            "Blog",
-            "across",
-            "down",
-            "Wordle Answers  Jan 13, 2026",
-            "Connections Answers  Jan 13, 2026",
-            "NYT Mini Answers  Jan 13, 2026",
-            "Letter Boxed Answers  Jan 13, 2026",
-            "Spelling Bee Answers  Jan 13, 2026",
-            "Arrow Keys: Move around the grid."
-        ],
-        "nyt_mini": [
-            "Word Tips",
-            "Blog",
-            "Wordle Answers  Jan 13, 2026",
-            "Connections Answers  Jan 13, 2026",
-            "NYT The Crossword   Jan 13, 2026",
-            "Letter Boxed Answers  Jan 13, 2026",
-            "Spelling Bee Answers  Jan 13, 2026"
-        ],
-        "nyt_strands": [
-            "Word Tips",
-            "Blog",
-            "Wordle Answers  Jan 13, 2026",
-            "Connections Answers  Jan 13, 2026",
-            "NYT Mini Answers  Jan 13, 2026",
-            "Contexto Answers  Jan 13, 2026",
-            "Spelling Bee Answers  Jan 13, 2026"
-        ],
-        "nyt_connections": [
-            "Word Tips",
-            "Blog",
-            "Wordle Answers  Jan 13, 2026",
-            "Connections Answers  Jan 13, 2026",
-            "NYT Mini Answers  Jan 13, 2026",
-            "Strands Answers  Jan 13, 2026",
-            "Spelling Bee Answers  Jan 13, 2026"
-        ],
-        "nyt_spelling_bee": [
-            "Word Tips",
-            "Blog",
-            "Wordle Answers  Jan 13, 2026",
-            "Connections Answers  Jan 13, 2026",
-            "NYT Mini Answers  Jan 13, 2026",
-            "Strands Answers  Jan 13, 2026",
-            "Contexto Answers  Jan 13, 2026"
-        ],
-        "nyt_pips": [
-            "Word Tips",
-            "Blog",
-            "Wordle Answers  Jan 13, 2026",
-            "NYT Mini Answers  Jan 13, 2026",
-            "Strands Answers  Jan 13, 2026",
-            "Contexto Answers  Jan 13, 2026",
-            "Spelling Bee Answers  Jan 13, 2026"
-        ],
-        "nyt_wordle": [
-            "Word Tips",
-            "Blog",
-            "Connections Answers  Jan 13, 2026",
-            "NYT Mini Answers  Jan 13, 2026",
-            "Strands Answers  Jan 13, 2026",
-            "Contexto Answers  Jan 13, 2026",
-            "Spelling Bee Answers  Jan 13, 2026"
-        ],
-        "la_times_daily": [
-            "LA Times Daily",
-            "19. Give in - Crossword Clue \n\t\t\t\tHint \n\t\t\tAnswer",
-            "45. Buddies - Crossword Clue \n\t\t\t\tHint \n\t\t\tAnswer",
-            "53. Smidgen - Crossword Clue \n\t\t\t\tHint \n\t\t\tAnswer",
-            "65. Channel - Crossword Clue \n\t\t\t\tHint \n\t\t\tAnswer",
-            "3. Feminine - Crossword Clue \n\t\t\t\tHint \n\t\t\tAnswer",
-            "29. Victory - Crossword Clue \n\t\t\t\tHint \n\t\t\tAnswer",
-            "New York Times Mini    Jan 13, 2026",
-            "New York Times    Jan 13, 2026",
-            "LA Times Mini    Jan 13, 2026"
-        ],
-        "la_times_mini": [
-            "LA Times Mini",
-            "2. Debonair - Crossword Clue \n\t\t\t\tHint \n\t\t\tAnswer",
-            "New York Times Mini    Jan 13, 2026",
-            "New York Times    Jan 13, 2026",
-            "LA Times Daily    Jan 13, 2026"
-        ],
-        "usa_today_daily": [
-            "42. Donkey - Crossword Clue \n\t\t\t\tHint \n\t\t\tAnswer",
-            "32. Started - Crossword Clue \n\t\t\t\tHint \n\t\t\tAnswer",
-            "61. Buddy - Crossword Clue \n\t\t\t\tHint \n\t\t\tAnswer",
-            "New York Times Mini    Jan 13, 2026",
-            "New York Times    Jan 13, 2026",
-            "LA Times Daily    Jan 13, 2026",
-            "LA Times Mini    Jan 13, 2026"
-        ],
-        "usa_today_quick": [
-            "New York Times Mini    Jan 13, 2026",
-            "New York Times    Jan 13, 2026",
-            "LA Times Daily    Jan 13, 2026",
-            "LA Times Mini    Jan 13, 2026"
-        ]
+        "nyt_crossword": [],
+        "nyt_mini": [],
+        "nyt_strands": [],
+        "nyt_connections": [],
+        "nyt_spelling_bee": [],
+        "nyt_wordle": [],
+        "la_times_daily": [],
+        "usa_today_daily": []
     }
 }
