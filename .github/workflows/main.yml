@@ -1,0 +1,35 @@
+name: NYT Master Scraper
+
+on:
+  schedule:
+    - cron: '30 04 * * *' # Rozana 9:30 AM (PKT) par chalega
+  workflow_dispatch: # Is se aap manually button daba kar run kar sakte hain
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # GitHub ko file save karne ki ijazat deta hai
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Run Scraper
+        run: python scraper.py
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add data.json
+          git commit -m "Auto Update: Daily Game Data" || exit 0
+          git push
