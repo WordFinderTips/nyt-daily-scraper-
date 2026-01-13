@@ -1,13 +1,22 @@
 {
-    "last_updated": "2026-01-13 20:31:18",
+    "last_updated": "2026-01-13 20:35:47",
+    "date": "2026-01-13",
+    "source": "WordTips via ScrapingBee",
     "puzzles": {
-        "nyt_crossword": [],
-        "nyt_mini": [],
-        "nyt_strands": [],
-        "nyt_connections": [],
-        "nyt_spelling_bee": [],
-        "nyt_wordle": [],
-        "la_times_daily": [],
-        "usa_today_daily": []
+        "crossword": [
+            "Error: 400"
+        ],
+        "connections": [
+            "Error: 400"
+        ],
+        "spelling_bee": [
+            "Error: 400"
+        ],
+        "strands": [
+            "Error: 400"
+        ],
+        "la_times": [
+            "Error: 400"
+        ]
     }
 }
