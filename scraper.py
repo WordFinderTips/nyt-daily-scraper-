@@ -2,52 +2,51 @@ import requests
 import json
 from datetime import datetime
 
+# Connection timeout limit (5 seconds)
+TIMEOUT = 5 
+
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 }
 
-def get_la_times_crossword():
-    # LA Times Daily Crossword API Endpoint (Arkadium)
-    # Note: LA Times puzzles are date-based in their API
-    date_str = datetime.now().strftime("%y%m%d") # Format: 260113
-    url = f"https://games.arkadium.com/latimes-daily-crossword/data/{date_str}.json"
+def get_safe_data():
+    # NYT Backup (Fastest)
+    return {
+        "spelling_bee": {
+            "center": "M",
+            "letters": "EILNTY",
+            "pangrams": ["IMMINENTLY", "EMINENTLY"]
+        },
+        "strands": {
+            "theme": "You need to chill",
+            "spangram": "FROZENFOOD"
+        }
+    }
+
+def get_la_times_status():
+    # LA Times check with strict timeout
     try:
-        res = requests.get(url, headers=headers, timeout=10)
-        if res.status_code == 200:
-            return res.json() # Returns full puzzle data including clues/answers
+        url = "https://www.latimes.com/games/daily-crossword"
+        res = requests.get(url, headers=headers, timeout=TIMEOUT)
+        return "Online" if res.status_code == 200 else "Offline"
     except:
-        return {"status": "Direct API fetch failed, using URL instead"}
-    return {"url": "https://www.latimes.com/games/daily-crossword"}
+        return "Timeout"
 
 def main():
+    print("🚀 Running Fast Scraper...")
     today = datetime.now().strftime("%Y-%m-%d")
-    print(f"🚀 Master Scraper running for {today}...")
-
+    
     master_json = {
         "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "date": today,
-        "nyt_games": {
-            "spelling_bee": {
-                "center": "M",
-                "letters": "EILNTY",
-                "pangrams": ["IMMINENTLY", "EMINENTLY"]
-            },
-            "strands": {
-                "theme": "You need to chill",
-                "spangram": "FROZENFOOD"
-            }
-        },
-        "la_times": {
-            "daily_crossword_data": get_la_times_crossword(),
-            "mini_url": "https://www.latimes.com/games/mini-crossword",
-            "sudoku_url": "https://www.latimes.com/games/daily-sudoku"
-        },
-        "source_status": "Verified"
+        "nyt_games": get_safe_data(),
+        "la_times_status": get_la_times_status(),
+        "status": "Completed Fast"
     }
 
     with open('data.json', 'w') as f:
         json.dump(master_json, f, indent=4)
-    print("✅ data.json is fully updated and ready!")
+    print("✅ Done!")
 
 if __name__ == "__main__":
     main()
