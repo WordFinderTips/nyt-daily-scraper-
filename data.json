@@ -1,5 +1,5 @@
 {
-    "last_updated": "2026-01-13 12:10:15",
+    "last_updated": "2026-01-13 12:19:52",
     "date": "2026-01-13",
     "nyt_games": {
         "spelling_bee": {
@@ -15,6 +15,8 @@
             "spangram": "FROZENFOOD"
         }
     },
-    "la_times_status": "Online",
-    "status": "Completed Fast"
+    "la_times": {
+        "status": "Failed to fetch LA Times answers"
+    },
+    "status": "All Systems Go"
 }
