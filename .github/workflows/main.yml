@@ -2,14 +2,14 @@ name: NYT Master Scraper
 
 on:
   schedule:
-    - cron: '30 04 * * *' # Rozana 9:30 AM (PKT) par chalega
-  workflow_dispatch: # Is se aap manually button daba kar run kar sakte hain
+    - cron: '30 04 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # GitHub ko file save karne ki ijazat deta hai
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,7 +21,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4
+          python -m pip install --upgrade pip
+          pip install requests
 
       - name: Run Scraper
         run: python scraper.py
