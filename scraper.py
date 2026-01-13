@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 
 # Apni ScrapingBee API Key yahan dalein
-API_KEY = 'YOUR_SCRAPINGBEE_API_KEY'
+API_KEY = '0H648XHAU6JCPP1O6QGWSH4TDA2AUZGIGAQ3BJXTV2E4V7QXJP46BRD1BFQFPCIY5KMVUNNIGPISV9O7'
 
 def get_nyt_game_data(game_name):
     target_url = f"https://www.nytimes.com/puzzles/{game_name}"
