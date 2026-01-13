@@ -9,10 +9,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Ye line Exit Code 128 ko fix karegi
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Poori history fetch karega conflict se bachne ke liye
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -29,6 +31,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git pull origin main --rebase # Ye line conflict fix karegi
           git add data.json
           git commit -m "Update Games Data" || echo "No changes to commit"
           git push origin main
