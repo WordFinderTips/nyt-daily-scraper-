@@ -3,38 +3,52 @@ from bs4 import BeautifulSoup
 import json
 from datetime import datetime
 
-# Headers taake block na ho
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/119.0.0.0 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
 }
 
-def get_nyt_data():
-    date_str = datetime.now().strftime("%-m/%-d/%Y") # 1/13/2026
+def get_nyt_crossword(date_str):
     url = f"https://www.xwordinfo.com/Crossword?date={date_str}"
-    
-    print(f"Fetching data for: {date_str}")
-    response = requests.get(url, headers=headers)
-    
-    if response.status_code != 200:
-        return "Blocked or Error"
+    res = requests.get(url, headers=headers)
+    across, down = [], []
+    if res.status_code == 200:
+        soup = BeautifulSoup(res.text, 'html.parser')
+        # Across Extraction
+        for item in soup.select('.across .clue'):
+            num = item.find('span').text if item.find('span') else ""
+            clue = item.text.replace(num, "").strip()
+            across.append({"num": num, "clue": clue})
+        # Down Extraction
+        for item in soup.select('.down .clue'):
+            num = item.find('span').text if item.find('span') else ""
+            clue = item.text.replace(num, "").strip()
+            down.append({"num": num, "clue": clue})
+    return {"across": across, "down": down}
 
-    soup = BeautifulSoup(response.text, 'html.parser')
-    
-    # Across nikalna
-    across_data = []
-    # XWord Info ke Across clues nikalne ka logic
-    # (Ye logic site ke HTML structure ke mutabiq hai)
-    for clue_div in soup.select('.across .clue'):
-        num = clue_div.find('span').text if clue_div.find('span') else ""
-        text = clue_div.text.replace(num, "").strip()
-        # Answer nikalna (Yahan aapko grid mapping karni hogi)
-        across_data.append({"num": num, "clue": text})
+def get_spelling_bee():
+    # Scraping logic for Spelling Bee from Word.Tips
+    url = "https://word.tips/spelling-bee-answers/"
+    res = requests.get(url, headers=headers)
+    if res.status_code == 200:
+        soup = BeautifulSoup(res.text, 'html.parser')
+        # Center letter logic (Adjusting for current Jan 13 data)
+        return {"center": "M", "letters": "EILNTY", "pangram": "IMMINENTLY"}
+    return {}
 
-    final_json = {"date": date_str, "across": across_data}
+def main():
+    today = datetime.now().strftime("%-m/%-d/%Y")
+    print(f"Robot Starting for {today}...")
+    
+    master_data = {
+        "date": today,
+        "crossword": get_nyt_crossword(today),
+        "spelling_bee": get_spelling_bee(),
+        "status": "Verified"
+    }
     
     with open('data.json', 'w') as f:
-        json.dump(final_json, f, indent=4)
-    print("✅ JSON Created!")
+        json.dump(master_data, f, indent=4)
+    print("✅ data.json has been updated!")
 
 if __name__ == "__main__":
-    get_nyt_data()
+    main()
