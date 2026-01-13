@@ -1,22 +1,9 @@
 {
-    "last_updated": "2026-01-13 17:58:17",
+    "last_updated": "2026-01-13 19:03:57",
     "date": "2026-01-13",
-    "nyt_games": {
-        "spelling_bee": {
-            "center": "M",
-            "letters": "EILNTY",
-            "pangrams": [
-                "IMMINENTLY",
-                "EMINENTLY"
-            ]
-        },
-        "strands": {
-            "theme": "You need to chill",
-            "spangram": "FROZENFOOD"
-        }
+    "nyt": {
+        "spelling_bee": {},
+        "connections": []
     },
-    "la_times": {
-        "status": "Unavailable"
-    },
-    "status": "Success"
+    "status": "Failed - Proxy Blocked"
 }
